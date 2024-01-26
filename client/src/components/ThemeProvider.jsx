@@ -13,5 +13,5 @@ export default function ThemeProvider({ children }) {
 }
 
 ThemeProvider.propTypes = {
-    children : PropTypes.string
+    children : PropTypes.object
 }
