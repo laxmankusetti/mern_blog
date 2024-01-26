@@ -1,16 +1,16 @@
-import { Button, Label, Spinner, TextInput } from "flowbite-react";
+import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { signInFailure, signInSuccess, signInStart } from "../redux/users/usersSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 
 export default function SignIn() {
     const [formData, setFormData] = useState({});
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const { loading, error } = useSelector(state => state.user);
+    const dispatch = useDispatch();
 
     const navigate = useNavigate();
-
-   console.log(error)
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.id] : e.target.value })
     }
@@ -18,8 +18,7 @@ export default function SignIn() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            setLoading(true)
-            setError(null)
+            dispatch(signInStart());
             const res = await fetch('/api/auth/signin', {
                 method : 'POST',
                 headers : {
@@ -29,17 +28,15 @@ export default function SignIn() {
             });
             const data = await res.json();
             if(data.success === false){
-                setError(data.message)
-                setLoading(false);
+                dispatch(signInFailure(data.message))
                 return
             }
-            setLoading(false);
+            dispatch(signInSuccess(data))
             if(res.ok){
               navigate('/')
             }
         } catch (error) {
-            setError(error);
-            setLoading(false)
+            dispatch(signInFailure(error.message))
         }
     }
 
@@ -86,6 +83,11 @@ export default function SignIn() {
                     Sign Up
                 </Link>
             </div>
+            {error && (
+              <Alert color='failure' className="mt-5">
+                {error}
+              </Alert>
+            )}
           </form>
         </div>
       </div>
