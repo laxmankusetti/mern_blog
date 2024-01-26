@@ -86,7 +86,7 @@ export default function SignUp() {
             <OAuth />
             <div className="flex gap-1 text-sm">
                 <span>Have an account? </span>
-                <Link to='/sign-in' className="text-blue-500 font-semibold">
+                <Link to='/sign-in' className="text-blue-500 font-semibold dark:text-blue-400">
                     Sign In
                 </Link>
             </div>
