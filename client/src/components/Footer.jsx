@@ -9,19 +9,19 @@ import { BsLinkedin } from 'react-icons/bs';
 export default function FooterCom() {
   return (
     <Footer container className="border border-t-8 border-teal-500">
-      <div className="w-full max-w-7xl mx-auto">
-        <div className="grid w-full sm:flex justify-between md:grid-cols-1">
-          <div className="mt-5">
+      <div className="w-full max-w-6xl mx-auto">
+        <div className="">
+          <div className="grid w-full sm:flex justify-between md:grid-cols-1">
             <Link
               to="/"
-              className="whitespace-nowrap self-center text-sm sm:text-xl dark:text-white font-semibold"
+              className="whitespace-nowrap self-center text-md sm:text-xl dark:text-white font-semibold"
             >
               <span className="px-2 py-1 bg-gradient-to-r from-indigo-500 via-violet-500 to-pink-500 rounded-lg text-white">
                 Laxman&apos;s
               </span>
               Blog
             </Link>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:grid-gap-6 mt-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:grid-gap-8 mt-5">
             <div>
                 <Footer.Title title="About" />
                 <Footer.LinkGroup col>
