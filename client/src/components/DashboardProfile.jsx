@@ -1,6 +1,6 @@
 import { Alert, Button, TextInput } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getDownloadURL,
   getStorage,
@@ -10,6 +10,7 @@ import {
 import { app } from "../firebase";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import { updateStart, updateSuccess, updateFailure } from "../redux/users/usersSlice";
 
 export default function DashboardProfile() {
   const { currentUser } = useSelector((state) => state.user);
@@ -17,8 +18,12 @@ export default function DashboardProfile() {
   const [imageFileUrl, setImageFileUrl] = useState(null);
   const [fileUploadProgress, setFileUploadProgress] = useState(null);
   const [fileUploadError, setFileUploadError] = useState(null);
+  const [fileUploadFailure, setFileUploadFailure] = useState(null);
+  const [fileUploadSuccess, setFileUploadSuccess] = useState(null);
+  const [formData, setFormData] = useState({});
 
   const imageFileRef = useRef();
+  const dispatch = useDispatch();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -53,10 +58,12 @@ export default function DashboardProfile() {
         setFileUploadProgress(null);
         setImageFile(null);
         setImageFileUrl(null);
+        
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           setImageFileUrl(downloadURL);
+          setFormData({...formData, profilePicture:downloadURL})
         });
       }
     );
@@ -73,10 +80,45 @@ export default function DashboardProfile() {
   //   }
   // }
 
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id] : e.target.value })
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setFileUploadFailure(null)
+    setFileUploadSuccess(null)
+    if(Object.keys(formData).length === 0){
+      return
+    }
+    try {
+      dispatch(updateStart());
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method : 'PUT',
+        headers : {
+          'Content-Type' : 'application/json',
+        },
+        body : JSON.stringify(formData)
+      })
+      const data = await res.json();
+      if(!res.ok){
+        dispatch(updateFailure(data.message))
+        setFileUploadFailure('An error accured to update Details')
+      }
+      dispatch(updateSuccess(data))
+      setFileUploadFailure(null)
+      setFileUploadSuccess('Details updated successfully')
+    } catch (error) {
+      dispatch(updateFailure(error.message))
+      setFileUploadFailure('An error accured to update Details')
+      console.log(error)
+    }
+  }
+
   return (
     <div className="max-w-lg mx-auto p-3 w-full">
       <h1 className="font-bold text-3xl text-center my-5">Profile</h1>
-      <form className="flex flex-col gap-4 w-full">
+      <form className="flex flex-col gap-4 w-full" onSubmit={handleSubmit}>
         <input
           type="file"
           onChange={handleImageChange}
@@ -120,9 +162,10 @@ export default function DashboardProfile() {
           type="text"
           defaultValue={currentUser.username}
           id="username"
+          onChange={handleChange}
         />
-        <TextInput type="email" defaultValue={currentUser.email} id="email" />
-        <TextInput type="password" id="password" placeholder="Password" />
+        <TextInput type="email" defaultValue={currentUser.email} id="email" onChange={handleChange} />
+        <TextInput type="password" id="password" placeholder="Password" onChange={handleChange} />
         <Button gradientDuoTone="purpleToBlue" outline type="submit">
           Update
         </Button>
@@ -131,6 +174,8 @@ export default function DashboardProfile() {
         <span className="cursor-pointer">Delete Account</span>
         <span className="cursor-pointer">Sign Out</span>
       </div>
+      {fileUploadFailure && <Alert color="failure" className="mt-5">{fileUploadFailure}</Alert>}
+      {fileUploadSuccess && <Alert color="success" className="mt-5">{fileUploadSuccess}</Alert>}
     </div>
   );
 }
