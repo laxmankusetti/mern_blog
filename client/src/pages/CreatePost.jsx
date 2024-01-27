@@ -11,12 +11,18 @@ import {
 import { app } from "../firebase";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import { useNavigate } from "react-router-dom";
 
 export default function CreatePost() {
   const [file, setFile] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
   const [imageUploadProgress, setImageUploadProgress] = useState(null);
   const [formData, setFormData] = useState({});
+  const [publishError, setPublishError] = useState(null);
+
+  const navigate = useNavigate();
+
+  console.log(formData)
 
   const handleImageUpload = async () => {
     try {
@@ -54,18 +60,41 @@ export default function CreatePost() {
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/post/create', {
+        method : 'POST', 
+        headers : {
+          'Content-Type' : 'application/json'
+        },
+        body : JSON.stringify(formData)
+      })
+      const data = await res.json();
+      if(!res.ok){
+        setPublishError(data.message)
+      }
+      setPublishError(null)
+      navigate(`/post/${data.slug}`)
+    } catch (error) {
+      setPublishError('Something went wrong!')
+      console.log(error)
+    }
+  }
+
   return (
     <div className="p-3 mx-auto max-w-3xl min-h-screen">
       <h1 className="text-3xl text-center font-semibold my-5">Create a Post</h1>
-      <form className="flex flex-col gap-4">
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <div className="flex flex-col sm:flex-row justify-between gap-5">
           <TextInput
             type="text"
             placeholder="Title"
             id="title"
             className="flex-1"
+            onChange={(e) => {setFormData({...formData, title : e.target.value})}}
           />
-          <Select>
+          <Select onChange={(e) => {setFormData({...formData, category : e.target.value})}}>
             <option value="uncategorized">Select a category</option>
             <option value="javascript">Javascript</option>
             <option value="reactjs">ReactJs</option>
@@ -114,10 +143,12 @@ export default function CreatePost() {
           theme="snow"
           placeholder="Write something..."
           className="h-72 mb-12"
+          onChange={(value) => {setFormData({...formData, content : value})}}
         />
         <Button type="submit" gradientDuoTone="purpleToPink">
           Publish
         </Button>
+        {publishError && <Alert color='failure' className="mt-5">{publishError}</Alert>}
       </form>
     </div>
   );
