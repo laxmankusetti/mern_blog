@@ -23,6 +23,7 @@ export default function DashboardSidebar() {
               icon={HiUser}
               label="User"
               labelColor="dark"
+              as='div'
             >
               Profile
             </Sidebar.Item>
