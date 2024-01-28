@@ -10,6 +10,7 @@ import FooterCom from './components/Footer.jsx';
 import PrivateRouter from './components/PrivateRouter.jsx';
 import AdminOnlyPrivateRoute from './components/AdminOnlyPrivateRoute.jsx';
 import CreatePost from './pages/CreatePost.jsx';
+import UpdatePost from './pages/UpdatePost.jsx';
 
 
 export default function App() {
@@ -24,6 +25,7 @@ export default function App() {
         </Route>
         <Route element={<AdminOnlyPrivateRoute />}>
           <Route path='/create-post' element={<CreatePost />} />
+          <Route path='/update-post/:postId' element={<UpdatePost />} />
         </Route>
         <Route path='/projects' element={<Projects />} />
         <Route path='/sign-in' element={<SignIn />} />
