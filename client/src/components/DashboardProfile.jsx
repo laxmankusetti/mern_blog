@@ -230,7 +230,7 @@ export default function DashboardProfile() {
           {loading ? "Loading..." : "Update"}
         </Button>
         {currentUser.isAdmin && (
-          <Link to="/create-post" gradientDuoTone="blueToPink">
+          <Link to="/create-post">
             <Button gradientDuoTone='purpleToPink' className="w-full">Create a post</Button>
           </Link>
         )}
