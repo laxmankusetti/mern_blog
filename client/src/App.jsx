@@ -11,6 +11,7 @@ import PrivateRouter from './components/PrivateRouter.jsx';
 import AdminOnlyPrivateRoute from './components/AdminOnlyPrivateRoute.jsx';
 import CreatePost from './pages/CreatePost.jsx';
 import UpdatePost from './pages/UpdatePost.jsx';
+import PostPage from './pages/PostPage.jsx';
 
 
 export default function App() {
@@ -30,6 +31,7 @@ export default function App() {
         <Route path='/projects' element={<Projects />} />
         <Route path='/sign-in' element={<SignIn />} />
         <Route path='/sign-up' element={<SignUp />} />
+        <Route path='/post/:postSlug' element={<PostPage />} />
       </Routes>
       <FooterCom />
     </BrowserRouter>
