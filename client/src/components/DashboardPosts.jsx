@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 
 export default function DashboardPosts() {
   const [userPosts, setUserPosts] = useState([]);
+  const [showMore, setShowMore] = useState(true);
   const { currentUser } = useSelector((state) => state.user);
 
   console.log(userPosts);
@@ -16,6 +17,9 @@ export default function DashboardPosts() {
         const data = await res.json();
         if (res.ok) {
           setUserPosts(data.posts);
+          if(data.posts.length < 9){
+            setShowMore(false)
+          }
         }
       } catch (error) {
         console.log(error);
@@ -26,9 +30,27 @@ export default function DashboardPosts() {
       fetchPosts();
     }
   }, [currentUser._id]);
+
+  const handleShowMore = async () => {
+    const startIndex = userPosts.length;
+    try {
+      const res = await fetch(`/api/post/getPosts?userId=${currentUser._id}&startIndex=${startIndex}`);
+      const data = await res.json();
+      if(res.ok){
+        setUserPosts((prev) => [...prev, ...data.posts])
+      }
+      if(data.posts.length < 9){
+        setShowMore(false)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return (
     <div className="table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700">
       {currentUser.isAdmin && userPosts.length > 0 ? (
+        <>
         <Table hoverable className="shadow-md">
           <Table.Head>
             <Table.HeadCell>Date Updated</Table.HeadCell>
@@ -80,8 +102,10 @@ export default function DashboardPosts() {
             </Table.Body>
           ))}
         </Table>
+        {showMore && (<button className="w-full self-center text-teal-500 font-semibold py-5" onClick={handleShowMore}>Show more</button>)}
+        </>
       ) : (
-        <></>
+        <p>You have no posts yet, please add some posts to see your posts!!!</p>
       )}
     </div>
   );
