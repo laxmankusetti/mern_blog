@@ -5,6 +5,7 @@ import DashboardProfile from "../components/DashboardProfile.jsx";
 import DashboardPosts from "../components/DashboardPosts.jsx";
 import DashboardUsers from "../components/DashboardUsers.jsx";
 import DashboardComments from "../components/DashboardComments.jsx";
+import DashboardComponent from "../components/DashboardComponent.jsx";
 
 
 export default function DashBoard() {
@@ -28,6 +29,7 @@ export default function DashBoard() {
         {tab === 'posts' && <DashboardPosts />}
         {tab === 'users' && <DashboardUsers />}
         {tab === 'comments' && <DashboardComments />}
+        {tab === 'dash' && <DashboardComponent />}
       </div>
     )
   }
