@@ -1,64 +1,125 @@
-import { Button, Textarea } from "flowbite-react";
+import { Button, Modal, Textarea } from "flowbite-react";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Alert } from "flowbite-react";
 import Comment from "./Comment.jsx";
+import { HiOutlineExclamationCircle } from "react-icons/hi";
 
 export default function CommentSection({ postId }) {
   const { currentUser } = useSelector((state) => state.user);
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
   const [commentError, setCommentError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getComments = async () => {
       try {
         const res = await fetch(`/api/comment/getPostComments/${postId}`);
-        if(res.ok){
+        if (res.ok) {
           const data = await res.json();
           setComments(data);
         }
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
-    }
+    };
 
     getComments();
-  }, [postId])
+  }, [postId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if(comment.length > 200){
-        return
+      if (comment.length > 200) {
+        return;
       }
-      if(!comment.length){
-        setCommentError('Please enter some text as comment')
+      if (!comment.length) {
+        setCommentError("Please enter some text as comment");
       }
-      const res = await fetch('/api/comment/create', {
-        method : 'POST',
-        headers : {
-          'Content-Type' : 'application/json'
+      const res = await fetch("/api/comment/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        body : JSON.stringify({
-          content : comment,
+        body: JSON.stringify({
+          content: comment,
           postId,
-          userId : currentUser._id
-        })
-      })
+          userId: currentUser._id,
+        }),
+      });
       const data = await res.json();
-      if(res.ok){
-        setComment('')
-        setCommentError(null)
-        setComments([data, ...comments])
+      if (res.ok) {
+        setComment("");
+        setCommentError(null);
+        setComments([data, ...comments]);
       }
     } catch (error) {
-      setCommentError(error.message)
-
+      setCommentError(error.message);
     }
-  }
+  };
+
+  const handleLike = async (commentId) => {
+    try {
+      if (!currentUser) {
+        navigate("/sign-in");
+        return;
+      }
+      const res = await fetch(`/api/comment/likeComment/${commentId}`, {
+        method: "PUT",
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setComments(
+          comments.map((comment) => (
+            comment._id === commentId ? {
+                  ...comment,
+                  likes: data.likes,
+                  numberOfLikes: data.likes.length,
+                }
+              : comment)
+          )
+        );
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const handleEdit = async (comment, editedContent) => {
+    setComments(
+      comments.map((commentElem) =>
+        commentElem._id === comment._id
+          ? { ...commentElem, content: editedContent }
+          : commentElem
+      )
+    );
+  };
+
+  const handleDelete = async (commentId) => {
+    setShowModal(false);
+    try {
+      if (!currentUser) {
+        navigate("sign-in");
+      }
+      const res = await fetch(`/api/comment/deleteComment/${commentId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        // const data = await res.json();
+        setComments(comments.filter((comment) => comment._id !== commentId));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="max-w-2xl w-full mx-auto p-3">
       {currentUser ? (
@@ -86,7 +147,10 @@ export default function CommentSection({ postId }) {
       )}
 
       {currentUser && (
-        <form className="border-teal-500 border p-3 rounded-md my-5" onSubmit={handleSubmit}>
+        <form
+          className="border-teal-500 border p-3 rounded-md my-5"
+          onSubmit={handleSubmit}
+        >
           <Textarea
             placeholder="Add a comment..."
             maxLength="200"
@@ -103,22 +167,73 @@ export default function CommentSection({ postId }) {
               Submit
             </Button>
           </div>
-          {commentError && <Alert color='failure'>{commentError}</Alert>}
+          {commentError && <Alert color="failure">{commentError}</Alert>}
         </form>
       )}
 
-      {comments.length === 0 ?
-       (<p className="font-semibold">No comments yet!!!</p>)
-        : 
-        (<div className="text-sm my-5 flex items-center gap-2">
-          <p className="font-semibold">Comments</p>
-          <div className="px-2 py-1 border-gray-400 border rounded-sm">
-            <p className="font-bold">{comments.length}</p>
+      {comments.length === 0 ? (
+        <p className="font-semibold">No comments yet!!!</p>
+      ) : (
+        <>
+          <div className="text-sm my-5 flex items-center gap-2">
+            <p className="font-semibold">Comments</p>
+            <div className="px-2 py-1 border-gray-400 border rounded-sm">
+              <p className="font-bold">{comments.length}</p>
+            </div>
           </div>
-        </div>)
-      }
+          {comments.map((comment) => (
+            <Comment
+              key={comment._id}
+              comment={comment}
+              onLike={handleLike}
+              onEdit={handleEdit}
+              onDelete={(commentId) => {
+                setShowModal(true);
+                setCommentToDelete(commentId);
+              }}
+            />
+          ))}
+        </>
+      )}
 
-      {comments.map(comment => <Comment key={comment._id} comment={comment} />)}
+      {showModal && (
+        <Modal
+          show={showModal}
+          onClose={() => {
+            setShowModal(false);
+          }}
+          popup
+          size="md"
+        >
+          <Modal.Header />
+          <Modal.Body>
+            <div className="text-center">
+              <HiOutlineExclamationCircle className="h-14 w-14 mb-5 mx-auto text-gray-400 dark:text-gray-200" />
+              <h3 className="text-lg font-semibold text-gray-500 dark:text-gray-300">
+                Are you sure? You want to delete this comment?
+              </h3>
+              <div className="flex justify-center items-center gap-6 my-5">
+                <Button
+                  color="failure"
+                  onClick={() => {
+                    handleDelete(commentToDelete);
+                  }}
+                >
+                  Yes, I&apos;m sure
+                </Button>
+                <Button
+                  color="gray"
+                  onClick={() => {
+                    setShowModal(false);
+                  }}
+                >
+                  No, cancle
+                </Button>
+              </div>
+            </div>
+          </Modal.Body>
+        </Modal>
+      )}
     </div>
   );
 }
