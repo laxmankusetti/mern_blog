@@ -13,8 +13,7 @@ import CreatePost from './pages/CreatePost.jsx';
 import UpdatePost from './pages/UpdatePost.jsx';
 import PostPage from './pages/PostPage.jsx';
 import ScrollTopTop from './components/ScrollToTop.jsx';
-
-
+import Search from './pages/Search.jsx';
 
 export default function App() {
   return (
@@ -33,6 +32,7 @@ export default function App() {
         </Route>
         <Route path='/projects' element={<Projects />} />
         <Route path='/sign-in' element={<SignIn />} />
+        <Route path='/search' element={<Search />} />
         <Route path='/sign-up' element={<SignUp />} />
         <Route path='/post/:postSlug' element={<PostPage />} />
       </Routes>
