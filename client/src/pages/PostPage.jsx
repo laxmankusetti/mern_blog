@@ -13,8 +13,6 @@ export default function PostPage() {
   const [post, setPost] = useState(null);
   const [recentPosts, setrecentPosts] = useState(null);
 
-  console.log(error)
-
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -87,7 +85,7 @@ export default function PostPage() {
       <div className="max-w-4xl mx-auto">
         <CallToAction />
       </div>
-      <CommentSection postId={post._id} />
+      <CommentSection postId={post?._id} />
       <div className="flex flex-col mt-5 items-center justify-center">
         <h1 className="text-xl text-center">Recent Articles</h1>
         <div className="flex flex-wrap gap-5 mx-auto">

@@ -144,7 +144,7 @@ export default function Search() {
             >
               <option value="uncategorized">Uncategorized</option>
               <option value="reactjs">ReactJS</option>
-              <option value="nextjs">NextJS</option>
+              <option value="javascript">Javascript</option>
               <option value="nodejs">NodeJS</option>
               <option value="expressjs">ExpressJS</option>
               <option value="reduxjs">ReduxJS</option>

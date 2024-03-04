@@ -3,6 +3,8 @@ import CallToAction from "../components/CallToAction";
 import { useEffect, useState } from "react";
 import PostCard from "../components/PostCard.jsx";
 
+import Typewriter from "typewriter-effect";
+
 export default function Home() {
   const [posts, setPosts] = useState([]);
 
@@ -22,13 +24,26 @@ export default function Home() {
     <div>
       <div className="flex flex-col gap-4 px-3 p-28 max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold lg:text-6xl">
-          Welcome to my blog...!
+          <Typewriter
+            options={{
+              strings: [
+                "Hello, welcome to my blog",
+                "I am a frontend and fullstack developer",
+                "Learn Web developement",
+                "Become a frontend devloper",
+                "Become a fullstack developer",
+              ],
+              autoStart: true,
+              loop: true,
+            }}
+          />
         </h1>
-        <p className="text-gray text-xs sm:text-sm">
-          It is a blog portal. Here you will find details related to skills and
-          projects. Any new web development related topics will also be kept.
-          So, if you want to know any details, you can ask in the form of
-          comments to the post, I will respond to them as soon as possible.
+        <p className="text-gray text-xs sm:text-sm w-full">
+          Keeping the beginners in mind, all the basic projects are kept only.
+          If you want projects in advance level, let me know in the form of
+          comments. I am not very active on social media. But lately I have
+          started little by little. I will let you know once I am comfortable
+          with using social media.
         </p>
         <Link
           to="/search"
